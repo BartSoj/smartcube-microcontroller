@@ -1,8 +1,9 @@
 #include <Arduino.h>
+#include "MPUManager.h"
 #include <FastLED.h>
 
 // --- LED Panel Configuration ---
-#define DATA_PIN 4     // GPIO pin connected to the DIN of the LED panel (e.g., D4)
+#define DATA_PIN 22     // GPIO pin connected to the DIN of the LED panel (e.g., D4)
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB // Most WS2812B panels are GRB. Try RGB if colors are swapped.
 
@@ -13,7 +14,7 @@
 CRGB leds[NUM_LEDS];
 
 // Brightness (0-255). Start low! Max for 64 LEDs can be ~3.8A.
-#define BRIGHTNESS 60
+#define BRIGHTNESS 5
 
 // --- Special Placeholder for Background Pixels ---
 const CRGB BG_PLACEHOLDER = CRGB(1, 2, 3); // A unique, unlikely color for placeholder
@@ -93,6 +94,16 @@ void displayImageWithDynamicBackground(const CRGB image[NUM_LEDS_Y][NUM_LEDS_X],
 void setup()
 {
     Serial.begin(115200);
+
+    // Initialize MPU6050
+    if (!initMPU())
+    {
+        Serial.println("Failed to initialize MPU6050. Check connections.");
+    }
+    else
+    {
+        Serial.println("MPU6050 initialized successfully.");
+    }
     delay(2000);
 
     Serial.println("ESP32 WS2812B Panel - Icon with Cycling Background Colors");
@@ -100,8 +111,8 @@ void setup()
     Serial.print(NUM_LEDS);
     Serial.println(" LEDs...");
 
-    FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS)
-           .setCorrection(TypicalLEDStrip);
+    CFastLED::addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS)
+        .setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(BRIGHTNESS);
     FastLED.clear();
     FastLED.show();
@@ -122,6 +133,23 @@ void loop()
 {
     unsigned long currentTime = millis();
 
+    // Update MPU data - call frequently to prevent FIFO overflow
+    updateMPU();
+
+    // Print rotation angles every 500ms
+    static unsigned long lastMpuPrintTime = 0;
+    if (currentTime - lastMpuPrintTime >= 500)
+    {
+        lastMpuPrintTime = currentTime;
+
+        Serial.print("Rotation (degrees) - X: ");
+        Serial.print(getXRotation());
+        Serial.print(", Y: ");
+        Serial.print(getYRotation());
+        Serial.print(", Z: ");
+        Serial.println(getZRotation());
+    }
+
     // Change background color every second
     if (currentTime - lastBgChangeTime >= bgChangeInterval)
     {
@@ -141,7 +169,5 @@ void loop()
         Serial.print("Changed background to color index: ");
         Serial.println(currentBgColorIndex);
     }
-
-    // Small delay to be nice to the CPU
     delay(10);
 }
