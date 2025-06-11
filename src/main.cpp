@@ -4,6 +4,7 @@
 #include "FaceManager.h"
 #include "EventManager.h"
 #include "EventHandlers.h"
+#include "HttpRequestEventHandler.h"
 
 void setup()
 {
@@ -47,6 +48,12 @@ void setup()
     if (initEventHandlers())
     {
         Serial.println("Event Handlers initialized successfully.");
+    }
+
+    // Initialize HTTP Request Event Handler
+    if (initHttpRequestEventHandler())
+    {
+        Serial.println("HTTP Request Event Handler initialized successfully.");
     }
 }
 

@@ -1,5 +1,5 @@
 #include "HttpRequestManager.h"
-#include "secrets.h"
+#include "../include/config/secrets.h"
 
 bool HttpRequestManager::_initialized = false;
 
