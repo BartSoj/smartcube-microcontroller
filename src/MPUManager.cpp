@@ -139,3 +139,18 @@ float getYRotation() {
 float getZRotation() {
     return ypr[0] * 180/M_PI;
 }
+
+// Get the gravity vector [x, y, z]
+void getGravityVector(float* vec) {
+    vec[0] = gravity.x;
+    vec[1] = gravity.y;
+    vec[2] = gravity.z;
+}
+
+// Get the quaternion [w, x, y, z]
+void getQuaternion(float* quat) {
+    quat[0] = q.w;
+    quat[1] = q.x;
+    quat[2] = q.y;
+    quat[3] = q.z;
+}

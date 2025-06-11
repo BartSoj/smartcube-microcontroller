@@ -36,4 +36,18 @@ float getYRotation();
  */
 float getZRotation();
 
+/**
+ * Get the gravity vector
+ *
+ * @param vec Pointer to a float array of size 3 to store [x, y, z] components
+ */
+void getGravityVector(float* vec);
+
+/**
+ * Get the quaternion
+ *
+ * @param quat Pointer to a float array of size 4 to store [w, x, y, z] components
+ */
+void getQuaternion(float* quat);
+
 #endif // MPU_MANAGER_H
