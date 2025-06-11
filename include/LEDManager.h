@@ -1,46 +1,82 @@
 #ifndef LED_MANAGER_H
 #define LED_MANAGER_H
 
-#include <Arduino.h>
 #include <FastLED.h>
 
-// --- LED Panel Configuration ---
-#define DATA_PIN 22     // GPIO pin connected to the DIN of the LED panel (e.g., D4)
+// LED Panel Configuration
 #define LED_TYPE WS2812B
-#define COLOR_ORDER GRB // Most WS2812B panels are GRB. Try RGB if colors are swapped.
+#define COLOR_ORDER GRB
+#define DATA_PIN 22
 
-#define NUM_LEDS_X 8     // Number of LEDs in the X direction (width)
-#define NUM_LEDS_Y 8     // Number of LEDs in the Y direction (height)
-#define NUM_LEDS (NUM_LEDS_X * NUM_LEDS_Y) // Total number of LEDs (64 for an 8x8 panel)
+// Panel layout configuration
+#define PANEL_SIZE 8  // 8x8 panels
+#define NUM_PANELS 6  // 6 panels: top, bottom, left, right, front, back
+#define NUM_LEDS_PER_PANEL (PANEL_SIZE * PANEL_SIZE)
+#define NUM_LEDS (NUM_LEDS_PER_PANEL * NUM_PANELS)
 
-// Brightness (0-255). Start low! Max for 64 LEDs can be ~3.8A.
-#define BRIGHTNESS 5
+// Panel identifiers
+enum PanelSide
+{
+    TOP = 0,
+    BOTTOM,
+    LEFT,
+    RIGHT,
+    FRONT,
+    BACK
+};
 
-/**
- * Initialize the LED panel
- * 
- * @return true if initialization successful, false otherwise
- */
-bool initLEDs();
+// Icon identifiers
+enum IconType
+{
+    ICON_NONE = 0,
+    ICON_HEART,
+    ICON_SMILEY,
+    ICON_ARROW,
+    ICON_EXCLAMATION,
+    ICON_QUESTION
+};
 
-/**
- * Update the LED panel with cycling background colors
- * This function should be called periodically from the main loop
- */
-void updateLEDs();
+// Special value for background pixels in icon definitions
+extern const CRGB BG_PLACEHOLDER;
 
-/**
- * Display an image with a specific background color
- * 
- * @param bgColorIndex Index of the background color to use
- */
-void displayWithBackgroundColor(int bgColorIndex);
+class LEDManager
+{
+private:
+    CRGB leds[NUM_LEDS];
+    CRGB currentBackgroundColor;
+    uint8_t currentBrightness;
+    bool ledsEnabled;
+    IconType currentIcons[NUM_PANELS];
 
-/**
- * Get the current background color index
- * 
- * @return Current background color index
- */
-int getCurrentBgColorIndex();
+    // Helper function to map x,y coordinates to LED index within a panel
+    uint16_t XY(uint8_t x, uint8_t y, PanelSide panel);
+
+    // Helper to apply an icon to a panel with the current background
+    void applyIconToPanel(IconType icon, PanelSide panel);
+
+    // Updates the physical LEDs
+    void updateLEDs();
+
+public:
+    LEDManager();
+
+    // Initialization
+    bool init();
+
+    // Panel control functions
+    void setIcon(IconType icon, PanelSide panel);
+    void setAllIcons(IconType icon);
+    void setBackgroundColor(CRGB color);
+    void setBrightness(uint8_t brightness);
+    void enableLEDs(bool enable);
+
+    // Status getters
+    CRGB getBackgroundColor() const;
+    uint8_t getBrightness() const;
+    bool isEnabled() const;
+    IconType getCurrentIcon(PanelSide panel) const;
+};
+
+extern LEDManager ledManager;
 
 #endif // LED_MANAGER_H

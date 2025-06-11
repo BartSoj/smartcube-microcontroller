@@ -5,6 +5,7 @@
 #include "EventManager.h"
 #include "EventHandlers.h"
 #include "HttpRequestEventHandler.h"
+#include "LEDEventHandler.h"
 
 void setup()
 {
@@ -22,7 +23,7 @@ void setup()
     delay(2000);
 
     // Initialize LED panel
-    if (!initLEDs())
+    if (!ledManager.init())
     {
         Serial.println("Failed to initialize LED panel.");
     }
@@ -55,15 +56,18 @@ void setup()
     {
         Serial.println("HTTP Request Event Handler initialized successfully.");
     }
+
+    // Initialize LED Event Handler
+    if (initLEDEventHandler())
+    {
+        Serial.println("LED Event Handler initialized successfully.");
+    }
 }
 
 void loop()
 {
     // Update MPU data - call frequently to prevent FIFO overflow
     updateMPU();
-
-    // Update LEDs (handle background color cycling)
-    updateLEDs();
 
     // Update event manager to detect face changes
     eventManager.update();
