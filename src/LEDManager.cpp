@@ -124,9 +124,6 @@ void updateLEDs()
 
         // Update the display with the new background color
         displayImageWithDynamicBackground(heartIcon, currentBackgroundColor);
-
-        Serial.print("Changed background to color index: ");
-        Serial.println(currentBgColorIndex);
     }
 }
 

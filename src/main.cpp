@@ -2,6 +2,8 @@
 #include "MPUManager.h"
 #include "LEDManager.h"
 #include "FaceManager.h"
+#include "EventManager.h"
+#include "EventHandlers.h"
 
 void setup()
 {
@@ -34,6 +36,18 @@ void setup()
         Serial.println("Face Manager initialized successfully.");
         faceManager.printFaceMappings();
     }
+
+    // Initialize Event Manager
+    if (initEventManager())
+    {
+        Serial.println("Event Manager initialized successfully.");
+    }
+
+    // Initialize Event Handlers
+    if (initEventHandlers())
+    {
+        Serial.println("Event Handlers initialized successfully.");
+    }
 }
 
 void loop()
@@ -44,37 +58,8 @@ void loop()
     // Update LEDs (handle background color cycling)
     updateLEDs();
 
-    // Print rotation angles and current face every 500ms
-    static unsigned long lastMpuPrintTime = 0;
-    unsigned long currentTime = millis();
-    if (currentTime - lastMpuPrintTime >= 500)
-    {
-        lastMpuPrintTime = currentTime;
-
-        // Print rotation data
-        Serial.print("Rotation (degrees) - X: ");
-        Serial.print(getXRotation());
-        Serial.print(", Y: ");
-        Serial.print(getYRotation());
-        Serial.print(", Z: ");
-        Serial.println(getZRotation());
-
-        // Print gravity vector
-        float gravity[3];
-        getGravityVector(gravity);
-        Serial.print("Gravity vector: (");
-        Serial.print(gravity[0]);
-        Serial.print(", ");
-        Serial.print(gravity[1]);
-        Serial.print(", ");
-        Serial.print(gravity[2]);
-        Serial.println(")");
-
-        // Print current face pointing up
-        Serial.print("Current face pointing up: ");
-        Serial.println(faceManager.getCurrentFace());
-        Serial.println();
-    }
+    // Update event manager to detect face changes
+    eventManager.update();
 
     delay(10);
 }
