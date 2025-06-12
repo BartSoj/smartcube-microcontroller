@@ -130,7 +130,7 @@ bool initHttpRequestEventHandler()
     );
 
     // Register the HTTP handler with the event system
-    registerEventHandler(&httpHandler);
+    eventManager.registerEventHandler(&httpHandler);
 
     Serial.println("HTTP Request Event Handler initialized");
     return true;

@@ -1,7 +1,7 @@
 #ifndef LED_EVENT_HANDLER_H
 #define LED_EVENT_HANDLER_H
 
-#include "EventHandlers.h"
+#include "EventManager.h"
 #include "LEDManager.h"
 
 // Structure to map face names to colors

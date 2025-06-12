@@ -3,7 +3,6 @@
 #include "LEDManager.h"
 #include "FaceManager.h"
 #include "EventManager.h"
-#include "EventHandlers.h"
 #include "HttpRequestEventHandler.h"
 #include "LEDEventHandler.h"
 
@@ -43,12 +42,6 @@ void setup()
     if (initEventManager())
     {
         Serial.println("Event Manager initialized successfully.");
-    }
-
-    // Initialize Event Handlers
-    if (initEventHandlers())
-    {
-        Serial.println("Event Handlers initialized successfully.");
     }
 
     // Initialize HTTP Request Event Handler

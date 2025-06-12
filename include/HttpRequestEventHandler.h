@@ -1,7 +1,7 @@
 #ifndef HTTP_REQUEST_EVENT_HANDLER_H
 #define HTTP_REQUEST_EVENT_HANDLER_H
 
-#include "EventHandlers.h"
+#include "EventManager.h"
 #include "HttpRequestManager.h"
 
 // Event handler that sends HTTP requests based on cube face

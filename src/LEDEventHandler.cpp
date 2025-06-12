@@ -95,7 +95,7 @@ bool initLEDEventHandler()
     static LEDEventHandler ledHandler;
 
     // Register the LED handler with the event system
-    registerEventHandler(&ledHandler);
+    eventManager.registerEventHandler(&ledHandler);
 
     Serial.println("LED Event Handler initialized");
     return true;
