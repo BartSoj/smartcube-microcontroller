@@ -11,7 +11,7 @@ void setup()
     Serial.begin(115200);
 
     // Initialize MPU6050
-    if (!initMPU())
+    if (!mpuManager.init())
     {
         Serial.println("Failed to initialize MPU6050. Check connections.");
     }
@@ -59,11 +59,8 @@ void setup()
 
 void loop()
 {
-    // Update MPU data - call frequently to prevent FIFO overflow
-    updateMPU();
-
     // Update event manager to detect face changes
     eventManager.update();
 
-    delay(10);
+    delay(8);
 }

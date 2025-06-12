@@ -36,7 +36,7 @@ float FaceManager::dotProduct(float x1, float y1, float z1, float x2, float y2, 
 const char* FaceManager::getCurrentFace()
 {
     float gravity[3];
-    getGravityVector(gravity);
+    mpuManager.getGravityVector(gravity);
 
     // Calculate the local up vector (opposite of gravity)
     float localUp[3] = {-gravity[0], -gravity[1], -gravity[2]};

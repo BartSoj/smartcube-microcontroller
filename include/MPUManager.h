@@ -4,50 +4,47 @@
 #include <Arduino.h>
 
 /**
- * Initialize the MPU6050 sensor with Digital Motion Processor (DMP)
+ * MPUManager class for interfacing with MPU6050 sensor
  * 
- * @return true if initialization successful, false otherwise
+ * This class provides an interface to access the gravity vector data
+ * from the MPU6050 with DMP support. It handles all internal state
+ * management to prevent overflow issues.
  */
-bool initMPU();
+class MPUManager
+{
+public:
+    /**
+     * Constructor
+     * 
+     * @param sdaPin SDA pin for I2C connection
+     * @param sclPin SCL pin for I2C connection
+     */
+    MPUManager(int sdaPin = 19, int sclPin = 18);
 
-/**
- * Update MPU data using DMP - call this in each loop iteration
- */
-void updateMPU();
+    /**
+     * Initialize the MPU6050 sensor with Digital Motion Processor (DMP)
+     * 
+     * @return true if initialization successful, false otherwise
+     */
+    bool init();
 
-/**
- * Get X rotation (pitch) in degrees
- * 
- * @return rotation around X-axis in degrees
- */
-float getXRotation();
+    /**
+     * Get the gravity vector
+     *
+     * @param vec Pointer to a float array of size 3 to store [x, y, z] components
+     * @return true if gravity vector was successfully updated, false otherwise
+     */
+    bool getGravityVector(float* vec);
 
-/**
- * Get Y rotation (roll) in degrees
- * 
- * @return rotation around Y-axis in degrees
- */
-float getYRotation();
+private:
+    int _sdaPin;
+    int _sclPin;
+    bool _dmpReady;
 
-/**
- * Get Z rotation (yaw) in degrees
- * 
- * @return rotation around Z-axis in degrees
- */
-float getZRotation();
+    // Process FIFO data and update sensor readings
+    bool updateSensorData();
+};
 
-/**
- * Get the gravity vector
- *
- * @param vec Pointer to a float array of size 3 to store [x, y, z] components
- */
-void getGravityVector(float* vec);
-
-/**
- * Get the quaternion
- *
- * @param quat Pointer to a float array of size 4 to store [w, x, y, z] components
- */
-void getQuaternion(float* quat);
+extern MPUManager mpuManager;
 
 #endif // MPU_MANAGER_H

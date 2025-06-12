@@ -3,86 +3,101 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "I2Cdev.h"
 
-// MPU control/status vars
-MPU6050 mpu;
-bool dmpReady = false;  // set true if DMP init was successful
-uint8_t mpuIntStatus;   // holds actual interrupt status byte from MPU
-uint8_t devStatus;      // return status after each device operation (0 = success, !0 = error)
-uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
-uint16_t fifoCount;     // count of all bytes currently in FIFO
-uint8_t fifoBuffer[64]; // FIFO storage buffer
+// Forward declarations of private implementation variables
+namespace
+{
+    MPU6050* mpuDevice = nullptr;
+    uint8_t fifoBuffer[64]; // FIFO storage buffer
+    uint16_t packetSize; // expected DMP packet size
+    Quaternion q; // [w, x, y, z] quaternion container
+    VectorFloat gravity; // [x, y, z] gravity vector
+}
 
-// Orientation/motion vars
-Quaternion q;           // [w, x, y, z]         quaternion container
-VectorFloat gravity;    // [x, y, z]            gravity vector
-float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container
+// Global MPUManager instance
+MPUManager mpuManager;
 
-// MPU6050 initialization with DMP
-bool initMPU() {
+MPUManager::MPUManager(int sdaPin, int sclPin) : _sdaPin(sdaPin), _sclPin(sclPin), _dmpReady(false)
+{
+    // Constructor initializes member variables only
+}
+
+bool MPUManager::init()
+{
     // Initialize I2C communication
-    Wire.begin(19, 18); // SDA on pin 19, SCL on pin 18
+    Wire.begin(_sdaPin, _sclPin);
     Wire.setClock(400000); // 400kHz I2C clock
+
+    // Create MPU device if it doesn't exist
+    if (mpuDevice == nullptr)
+    {
+        mpuDevice = new MPU6050();
+    }
 
     // Initialize MPU6050
     Serial.println("Initializing MPU6050...");
-    mpu.initialize();
-    
+    mpuDevice->initialize();
+
     // Check if connected
-    if (!mpu.testConnection()) {
+    if (!mpuDevice->testConnection())
+    {
         Serial.println("MPU6050 connection failed!");
         return false;
     }
-    
+
     Serial.println("MPU6050 connection successful");
-    
+
     // Initialize DMP
     Serial.println("Initializing DMP...");
-    devStatus = mpu.dmpInitialize();
-    
+    uint8_t devStatus = mpuDevice->dmpInitialize();
+
     // Make sure it worked (returns 0 if so)
-    if (devStatus == 0) {
+    if (devStatus == 0)
+    {
         // Supply your own gyro offsets here, scaled for min sensitivity
         // These should be calibrated for your specific device
-        mpu.setXGyroOffset(220);
-        mpu.setYGyroOffset(76);
-        mpu.setZGyroOffset(-85);
-        mpu.setZAccelOffset(1788);
+        mpuDevice->setXGyroOffset(220);
+        mpuDevice->setYGyroOffset(76);
+        mpuDevice->setZGyroOffset(-85);
+        mpuDevice->setZAccelOffset(1788);
 
-        // Generate offsets and calibrate our MPU6050
-        mpu.CalibrateAccel(6);
-        mpu.CalibrateGyro(6);
-        mpu.PrintActiveOffsets();
+        // Generate offsets and calibrate MPU6050
+        mpuDevice->CalibrateAccel(6);
+        mpuDevice->CalibrateGyro(6);
+        mpuDevice->PrintActiveOffsets();
 
         // Configure DMP rate - set to a slower rate to prevent FIFO overflow
-        // The DMP sample rate affects how quickly the FIFO fills up
-        mpu.setRate(4); // 0 = 8kHz, 1 = 4kHz, 2 = 2kHz, 4 = 1kHz, etc.
+        mpuDevice->setRate(32); // 0 = 8kHz, 1 = 4kHz, 2 = 2kHz, 4 = 1kHz, etc.
         Serial.println("DMP sample rate set to 1kHz");
 
         // Configure FIFO
-        mpu.setDMPEnabled(false); // Temporarily disable while configuring
+        mpuDevice->setDMPEnabled(false); // Temporarily disable while configuring
 
         // Configure which sensor data goes to FIFO to minimize data size
-        // These calls set which motion processing data is pushed to the FIFO
-        mpu.setFIFOEnabled(true);
+        mpuDevice->setFIFOEnabled(true);
 
         // Only enable the data we need (quaternions) in the FIFO
-        mpu.setXGyroFIFOEnabled(false);
-        mpu.setYGyroFIFOEnabled(false);
-        mpu.setZGyroFIFOEnabled(false);
-        mpu.setAccelFIFOEnabled(false);
+        mpuDevice->setXGyroFIFOEnabled(false);
+        mpuDevice->setYGyroFIFOEnabled(false);
+        mpuDevice->setZGyroFIFOEnabled(false);
+        mpuDevice->setAccelFIFOEnabled(false);
 
         // Turn on the DMP
         Serial.println("Enabling DMP...");
-        mpu.setDMPEnabled(true);
+        mpuDevice->setDMPEnabled(true);
 
-        // Set our DMP Ready flag so the main loop() function knows it's okay to use it
-        dmpReady = true;
+        // Set our DMP Ready flag
+        _dmpReady = true;
 
         // Get expected DMP packet size for later comparison
-        packetSize = mpu.dmpGetFIFOPacketSize();
+        packetSize = mpuDevice->dmpGetFIFOPacketSize();
+
+        // Reset FIFO to start clean
+        mpuDevice->resetFIFO();
 
         return true;
-    } else {
+    }
+    else
+    {
         // ERROR!
         // 1 = initial memory load failed
         // 2 = DMP configuration updates failed
@@ -93,64 +108,54 @@ bool initMPU() {
     }
 }
 
-// Update MPU data using DMP
-void updateMPU() {
+bool MPUManager::updateSensorData()
+{
     // If DMP not ready, exit
-    if (!dmpReady) return;
+    if (!_dmpReady || mpuDevice == nullptr)
+    {
+        return false;
+    }
 
     // Get current FIFO count
-    fifoCount = mpu.getFIFOCount();
+    uint16_t fifoCount = mpuDevice->getFIFOCount();
 
     // Check for overflow
-    if (fifoCount >= 1024) {
+    if (fifoCount >= 1024)
+    {
         // Reset so we can continue cleanly
-        mpu.resetFIFO();
+        mpuDevice->resetFIFO();
         Serial.println("FIFO overflow! Resetting...");
-        return;
+        return false;
     }
 
-    // Process all available packets (don't wait for new data if we have enough)
-    // This helps prevent FIFO overflow by ensuring we're always emptying the buffer
-    if (fifoCount >= packetSize) {
-        // Read as many complete packets as possible
-        while (fifoCount >= packetSize) {
-            mpu.getFIFOBytes(fifoBuffer, packetSize);
-            fifoCount -= packetSize;
-        }
-
-        // Process the latest packet (the most recent data)
-        mpu.dmpGetQuaternion(&q, fifoBuffer);
-        mpu.dmpGetGravity(&gravity, &q);
-        mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+    // If we don't have enough data, return false
+    if (fifoCount < packetSize)
+    {
+        return false;
     }
+
+    // Process all available packets to prevent FIFO overflow
+    while (fifoCount >= packetSize)
+    {
+        mpuDevice->getFIFOBytes(fifoBuffer, packetSize);
+        fifoCount -= packetSize;
+    }
+
+    // Process the latest packet (most recent data)
+    mpuDevice->dmpGetQuaternion(&q, fifoBuffer);
+    mpuDevice->dmpGetGravity(&gravity, &q);
+
+    return true;
 }
 
-// Get X rotation in degrees (pitch)
-float getXRotation() {
-    return ypr[1] * 180/M_PI;
-}
+bool MPUManager::getGravityVector(float* vec)
+{
+    // Update sensor data first
+    bool success = updateSensorData();
 
-// Get Y rotation in degrees (roll)
-float getYRotation() {
-    return ypr[2] * 180/M_PI;
-}
-
-// Get Z rotation in degrees (yaw)
-float getZRotation() {
-    return ypr[0] * 180/M_PI;
-}
-
-// Get the gravity vector [x, y, z]
-void getGravityVector(float* vec) {
     vec[0] = gravity.x;
     vec[1] = gravity.y;
     vec[2] = gravity.z;
-}
 
-// Get the quaternion [w, x, y, z]
-void getQuaternion(float* quat) {
-    quat[0] = q.w;
-    quat[1] = q.x;
-    quat[2] = q.y;
-    quat[3] = q.z;
+    return success;
 }
