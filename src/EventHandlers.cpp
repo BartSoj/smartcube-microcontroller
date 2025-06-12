@@ -1,38 +1,51 @@
 #include "EventHandlers.h"
 #include "EventManager.h"
+#include <algorithm> // for std::find
 
-// Global pointer to the current event handler
-EventHandlerInterface* currentEventHandler = nullptr;
+// Global collection of event handlers
+std::vector<EventHandlerInterface*> eventHandlers;
 
 // Callback function that bridges between EventManager and EventHandlers
-void faceChangeCallbackBridge(const char* previousFace, const char* currentFace) {
-    if (currentEventHandler != nullptr) {
-        currentEventHandler->onFaceChange(previousFace, currentFace);
+void faceChangeCallbackBridge(const char* previousFace, const char* currentFace)
+{
+    // Call all registered event handlers
+    for (auto handler : eventHandlers)
+    {
+        handler->onFaceChange(previousFace, currentFace);
     }
 }
 
-// Default implementation of face change handler
-void DefaultEventHandler::onFaceChange(const char* previousFace, const char* currentFace) {
-    Serial.print("Face changed from ");
-    Serial.print(previousFace);
-    Serial.print(" to ");
-    Serial.println(currentFace);
-}
-
 // Register an event handler with the event manager
-void registerEventHandler(EventHandlerInterface* handler) {
-    // Store the handler in the global pointer
-    currentEventHandler = handler;
-
-    // Register the bridge callback with the event manager
-    eventManager.setFaceChangeCallback(faceChangeCallbackBridge);
+void registerEventHandler(EventHandlerInterface* handler)
+{
+    // Check if the handler is already registered
+    if (std::find(eventHandlers.begin(), eventHandlers.end(), handler) == eventHandlers.end())
+    {
+        // Add the handler to the vector
+        eventHandlers.push_back(handler);
+    }
 }
 
-// Initialize the default event handler
-bool initEventHandlers() {
-    // Create and register the default event handler
-    static DefaultEventHandler defaultHandler;
-    registerEventHandler(&defaultHandler);
+// Unregister an event handler
+bool unregisterEventHandler(EventHandlerInterface* handler)
+{
+    auto it = std::find(eventHandlers.begin(), eventHandlers.end(), handler);
+    if (it != eventHandlers.end())
+    {
+        eventHandlers.erase(it);
+        return true;
+    }
+    return false;
+}
+
+// Initialize the event handlers
+bool initEventHandlers()
+{
+    // Clear any existing handlers
+    eventHandlers.clear();
+
+    // Register the callback with the event manager
+    eventManager.setFaceChangeCallback(faceChangeCallbackBridge);
 
     return true;
 }
