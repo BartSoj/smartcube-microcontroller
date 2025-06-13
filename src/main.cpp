@@ -44,16 +44,16 @@ void setup()
         Serial.println("Event Manager initialized successfully.");
     }
 
-    // Initialize HTTP Request Event Handler
-    if (initHttpRequestEventHandler())
-    {
-        Serial.println("HTTP Request Event Handler initialized successfully.");
-    }
-
     // Initialize LED Event Handler
     if (initLEDEventHandler())
     {
         Serial.println("LED Event Handler initialized successfully.");
+    }
+
+    // Initialize HTTP Request Event Handler
+    if (initHttpRequestEventHandler())
+    {
+        Serial.println("HTTP Request Event Handler initialized successfully.");
     }
 }
 
@@ -61,6 +61,4 @@ void loop()
 {
     // Update event manager to detect face changes
     eventManager.update();
-
-    delay(8);
 }

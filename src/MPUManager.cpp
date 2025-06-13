@@ -48,6 +48,7 @@ bool MPUManager::init()
 
     // Initialize DMP
     Serial.println("Initializing DMP...");
+    mpuDevice->setDLPFMode(MPU6050_DLPF_BW_98);
     uint8_t devStatus = mpuDevice->dmpInitialize();
 
     // Make sure it worked (returns 0 if so)
@@ -66,7 +67,7 @@ bool MPUManager::init()
         mpuDevice->PrintActiveOffsets();
 
         // Configure DMP rate - set to a slower rate to prevent FIFO overflow
-        mpuDevice->setRate(32); // 0 = 8kHz, 1 = 4kHz, 2 = 2kHz, 4 = 1kHz, etc.
+        mpuDevice->setRate(16); // 0 = 8kHz, 1 = 4kHz, 2 = 2kHz, 4 = 1kHz, etc.
         Serial.println("DMP sample rate set to 1kHz");
 
         // Configure FIFO

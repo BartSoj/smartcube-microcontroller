@@ -66,6 +66,7 @@ DynamicJsonDocument HttpRequestManager::sendRequest(const String& url, const Str
     HTTPClient http;
     http.begin(url);
     http.addHeader("Content-Type", "application/json");
+    http.setTimeout(150);
 
     int httpResponseCode = 0;
     String payload;
