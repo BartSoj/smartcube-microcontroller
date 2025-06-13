@@ -19,7 +19,7 @@ public:
      * @param sdaPin SDA pin for I2C connection
      * @param sclPin SCL pin for I2C connection
      */
-    MPUManager(int sdaPin = 19, int sclPin = 18);
+    explicit MPUManager(int sdaPin = 19, int sclPin = 18);
 
     /**
      * Initialize the MPU6050 sensor with Digital Motion Processor (DMP)
@@ -42,7 +42,7 @@ private:
     bool _dmpReady;
 
     // Process FIFO data and update sensor readings
-    bool updateSensorData();
+    bool updateSensorData() const;
 };
 
 extern MPUManager mpuManager;

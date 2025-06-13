@@ -68,7 +68,6 @@ bool MPUManager::init()
 
         // Configure DMP rate - set to a slower rate to prevent FIFO overflow
         mpuDevice->setRate(16); // 0 = 8kHz, 1 = 4kHz, 2 = 2kHz, 4 = 1kHz, etc.
-        Serial.println("DMP sample rate set to 1kHz");
 
         // Configure FIFO
         mpuDevice->setDMPEnabled(false); // Temporarily disable while configuring
@@ -109,7 +108,7 @@ bool MPUManager::init()
     }
 }
 
-bool MPUManager::updateSensorData()
+bool MPUManager::updateSensorData() const
 {
     // If DMP not ready, exit
     if (!_dmpReady || mpuDevice == nullptr)

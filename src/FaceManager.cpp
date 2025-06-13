@@ -68,15 +68,15 @@ const char* FaceManager::getCurrentFace()
 void FaceManager::printFaceMappings()
 {
     Serial.println("Current Face Mappings:");
-    for (int i = 0; i < 6; i++)
+    for (auto& faceMapping : faceMappings)
     {
-        Serial.print(faceMappings[i].name);
+        Serial.print(faceMapping.name);
         Serial.print(": (");
-        Serial.print(faceMappings[i].x);
+        Serial.print(faceMapping.x);
         Serial.print(", ");
-        Serial.print(faceMappings[i].y);
+        Serial.print(faceMapping.y);
         Serial.print(", ");
-        Serial.print(faceMappings[i].z);
+        Serial.print(faceMapping.z);
         Serial.println(")");
     }
 }

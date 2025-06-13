@@ -169,9 +169,9 @@ LEDManager::LEDManager() :
     ledsEnabled(true)
 {
     // Initialize all panels to empty icons
-    for (int i = 0; i < NUM_PANELS; i++)
+    for (auto& currentIcon : currentIcons)
     {
-        currentIcons[i] = ICON_NONE;
+        currentIcon = ICON_NONE;
     }
 }
 
@@ -272,7 +272,7 @@ void LEDManager::applyIconToPanel(IconType icon, PanelSide panel)
     currentIcons[panel] = icon;
 }
 
-void LEDManager::updateLEDs()
+void LEDManager::updateLEDs() const
 {
     if (ledsEnabled)
     {
@@ -292,7 +292,7 @@ void LEDManager::setAllIcons(IconType icon)
 {
     for (int panel = 0; panel < NUM_PANELS; panel++)
     {
-        applyIconToPanel(icon, (PanelSide)panel);
+        applyIconToPanel(icon, static_cast<PanelSide>(panel));
     }
     updateLEDs();
 }
@@ -304,7 +304,7 @@ void LEDManager::setBackgroundColor(CRGB color)
     // Refresh all panels to apply the new background color
     for (int panel = 0; panel < NUM_PANELS; panel++)
     {
-        applyIconToPanel(currentIcons[panel], (PanelSide)panel);
+        applyIconToPanel(currentIcons[panel], static_cast<PanelSide>(panel));
     }
     updateLEDs();
 }
@@ -331,7 +331,7 @@ void LEDManager::enableLEDs(bool enable)
         // Refresh all panels
         for (int panel = 0; panel < NUM_PANELS; panel++)
         {
-            applyIconToPanel(currentIcons[panel], (PanelSide)panel);
+            applyIconToPanel(currentIcons[panel], static_cast<PanelSide>(panel));
         }
         updateLEDs();
     }

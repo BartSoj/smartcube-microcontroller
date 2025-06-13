@@ -15,14 +15,14 @@ bool HttpRequestManager::init()
 
     // Wait for connection with timeout
     int timeout = 20; // 10 seconds timeout
-    while (WiFi.status() != WL_CONNECTED && timeout > 0)
+    while (WiFiClass::status() != WL_CONNECTED && timeout > 0)
     {
         delay(500);
         Serial.print(".");
         timeout--;
     }
 
-    if (WiFi.status() != WL_CONNECTED)
+    if (WiFiClass::status() != WL_CONNECTED)
     {
         Serial.println("\nFailed to connect to WiFi");
         return false;
@@ -36,7 +36,7 @@ bool HttpRequestManager::init()
 
 bool HttpRequestManager::isConnected()
 {
-    return WiFi.status() == WL_CONNECTED;
+    return WiFiClass::status() == WL_CONNECTED;
 }
 
 bool HttpRequestManager::reconnect()
@@ -66,10 +66,9 @@ DynamicJsonDocument HttpRequestManager::sendRequest(const String& url, const Str
     HTTPClient http;
     http.begin(url);
     http.addHeader("Content-Type", "application/json");
-    http.setTimeout(150);
+    http.setTimeout(500);
 
     int httpResponseCode = 0;
-    String payload;
 
     if (method == "GET")
     {
@@ -105,7 +104,7 @@ DynamicJsonDocument HttpRequestManager::sendRequest(const String& url, const Str
     // Process response
     if (httpResponseCode > 0)
     {
-        payload = http.getString();
+        String payload = http.getString();
 
         // Try to parse JSON response
         DeserializationError error = deserializeJson(responseDoc, payload);
@@ -119,8 +118,9 @@ DynamicJsonDocument HttpRequestManager::sendRequest(const String& url, const Str
     }
     else
     {
-        responseDoc["error"] = http.errorToString(httpResponseCode);
+        responseDoc["error"] = HTTPClient::errorToString(httpResponseCode);
         responseDoc["status"] = httpResponseCode;
+        Serial.printf("HTTP request failed. WiFi signal strength (RSSI): %d dBm\n", WiFi.RSSI());
     }
 
     http.end();

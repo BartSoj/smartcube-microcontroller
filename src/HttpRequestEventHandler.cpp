@@ -3,32 +3,34 @@
 
 HttpRequestEventHandler::HttpRequestEventHandler()
 {
-    // Initialize all URLs to empty strings
+    // URL mappings from configuration file
+    urlMappings[0] = {"Top", HTTP_URL_TOP};
+    urlMappings[1] = {"Bottom", HTTP_URL_BOTTOM};
+    urlMappings[2] = {"Right", HTTP_URL_RIGHT};
+    urlMappings[3] = {"Left", HTTP_URL_LEFT};
+    urlMappings[4] = {"Front", HTTP_URL_FRONT};
+    urlMappings[5] = {"Back", HTTP_URL_BACK};
+}
+
+// Configure custom URL mappings
+void HttpRequestEventHandler::configureUrlMappings(const FaceUrlMapping* mappings)
+{
     for (int i = 0; i < 6; i++)
     {
-        faceUrls[i] = "";
+        urlMappings[i] = mappings[i];
     }
 }
 
-// Helper method to get the index of a face name
-int HttpRequestEventHandler::getFaceIndex(const char* faceName)
-{
-    if (strcmp(faceName, "Top") == 0) return 0;
-    if (strcmp(faceName, "Bottom") == 0) return 1;
-    if (strcmp(faceName, "Right") == 0) return 2;
-    if (strcmp(faceName, "Left") == 0) return 3;
-    if (strcmp(faceName, "Front") == 0) return 4;
-    if (strcmp(faceName, "Back") == 0) return 5;
-    return -1; // Face not found
-}
-
-// Configure URL for a specific face
+// Set URL for a specific face
 void HttpRequestEventHandler::setFaceUrl(const char* faceName, const String& url)
 {
-    int index = getFaceIndex(faceName);
-    if (index >= 0 && index < 6)
+    for (int i = 0; i < 6; i++)
     {
-        faceUrls[index] = url;
+        if (strcmp(urlMappings[i].faceName, faceName) == 0)
+        {
+            urlMappings[i].url = url;
+            return;
+        }
     }
 }
 
@@ -42,30 +44,36 @@ void HttpRequestEventHandler::configureFaceUrls(
     const String& backUrl
 )
 {
-    faceUrls[0] = topUrl;
-    faceUrls[1] = bottomUrl;
-    faceUrls[2] = rightUrl;
-    faceUrls[3] = leftUrl;
-    faceUrls[4] = frontUrl;
-    faceUrls[5] = backUrl;
+    urlMappings[0].url = topUrl;
+    urlMappings[1].url = bottomUrl;
+    urlMappings[2].url = rightUrl;
+    urlMappings[3].url = leftUrl;
+    urlMappings[4].url = frontUrl;
+    urlMappings[5].url = backUrl;
+}
+
+// Helper method to get URL for a given face name
+String HttpRequestEventHandler::getFaceUrl(const char* faceName)
+{
+    for (int i = 0; i < 6; i++)
+    {
+        if (strcmp(urlMappings[i].faceName, faceName) == 0)
+        {
+            return urlMappings[i].url;
+        }
+    }
+
+    return ""; // Face not found
 }
 
 // Send HTTP request for a specific face
 void HttpRequestEventHandler::sendRequestForFace(const char* faceName)
 {
-    int index = getFaceIndex(faceName);
-    if (index < 0 || index >= 6)
-    {
-        Serial.print("Unknown face: ");
-        Serial.println(faceName);
-        return;
-    }
-
-    // Get the URL for this face
-    String url = faceUrls[index];
+    // Get the URL for this face directly from config
+    String url = getFaceUrl(faceName);
     if (url.length() == 0)
     {
-        Serial.print("No URL configured for face: ");
+        Serial.print("Unknown face or no URL configured for face: ");
         Serial.println(faceName);
         return;
     }
@@ -113,21 +121,11 @@ void HttpRequestEventHandler::onFaceChange(const char* previousFace, const char*
     sendRequestForFace(currentFace);
 }
 
-// Initialize with default configuration and register the handler
+// Initialize and register the handler
 bool initHttpRequestEventHandler()
 {
     // Create a static instance of the HTTP request handler
     static HttpRequestEventHandler httpHandler;
-
-    // Configure URLs for each face from the configuration file
-    httpHandler.configureFaceUrls(
-        HTTP_URL_TOP, // Top face
-        HTTP_URL_BOTTOM, // Bottom face
-        HTTP_URL_RIGHT, // Right face
-        HTTP_URL_LEFT, // Left face
-        HTTP_URL_FRONT, // Front face
-        HTTP_URL_BACK // Back face
-    );
 
     // Register the HTTP handler with the event system
     eventManager.registerEventHandler(&httpHandler);

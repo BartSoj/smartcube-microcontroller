@@ -47,16 +47,16 @@ private:
     CRGB currentBackgroundColor;
     uint8_t currentBrightness;
     bool ledsEnabled;
-    IconType currentIcons[NUM_PANELS];
+    IconType currentIcons[NUM_PANELS]{};
 
     // Helper function to map x,y coordinates to LED index within a panel
-    uint16_t XY(uint8_t x, uint8_t y, PanelSide panel);
+    static uint16_t XY(uint8_t x, uint8_t y, PanelSide panel);
 
     // Helper to apply an icon to a panel with the current background
     void applyIconToPanel(IconType icon, PanelSide panel);
 
     // Updates the physical LEDs
-    void updateLEDs();
+    void updateLEDs() const;
 
 public:
     LEDManager();

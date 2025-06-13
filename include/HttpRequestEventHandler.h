@@ -4,30 +4,37 @@
 #include "EventManager.h"
 #include "HttpRequestManager.h"
 
+// Structure to map face names to URLs
+typedef struct
+{
+    const char* faceName; // Face name (Top, Bottom, Front, Back, Left, Right)
+    String url; // URL to request when this face is up
+} FaceUrlMapping;
+
 // Event handler that sends HTTP requests based on cube face
 class HttpRequestEventHandler : public EventHandlerInterface
 {
 private:
-    // Array of URLs for each face (indexed in the same order as faces in FaceManager)
-    String faceUrls[6]; // Top, Bottom, Right, Left, Front, Back
+    // Array of face-to-URL mappings
+    FaceUrlMapping urlMappings[6];
 
-    // Helper method to find the index of a face name
-    int getFaceIndex(const char* faceName);
+    // Helper method to get URL for a given face name
+    String getFaceUrl(const char* faceName);
 
     // Send the HTTP request for a specific face
     void sendRequestForFace(const char* faceName);
 
 public:
-    // Constructor with default empty URLs
+    // Constructor with default URL mappings
     HttpRequestEventHandler();
 
-    // Configure the URL for a specific face
+    // Configure custom URL mappings
+    void configureUrlMappings(const FaceUrlMapping* mappings);
+
+    // Set URL for a specific face
     void setFaceUrl(const char* faceName, const String& url);
 
-    // Handler for face change events
-    void onFaceChange(const char* previousFace, const char* currentFace) override;
-
-    // Set all face URLs at once
+    // Configure all face URLs at once
     void configureFaceUrls(
         const String& topUrl,
         const String& bottomUrl,
@@ -36,6 +43,9 @@ public:
         const String& frontUrl,
         const String& backUrl
     );
+
+    // Handler for face change events
+    void onFaceChange(const char* previousFace, const char* currentFace) override;
 };
 
 // Function to initialize and register the HTTP request handler

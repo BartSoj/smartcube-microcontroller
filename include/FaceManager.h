@@ -16,10 +16,10 @@ class FaceManager
 {
 private:
     // Array of face directions mapping sensor axes to face names
-    FaceDirection faceMappings[6];
+    FaceDirection faceMappings[6]{};
 
     // Calculate dot product between two 3D vectors
-    float dotProduct(float x1, float y1, float z1, float x2, float y2, float z2);
+    static float dotProduct(float x1, float y1, float z1, float x2, float y2, float z2);
 
 public:
     // Constructor with default face mappings

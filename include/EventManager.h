@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <vector>
-#include "FaceManager.h"
 
 // Interface for event handlers
 class EventHandlerInterface
@@ -11,8 +10,7 @@ class EventHandlerInterface
 public:
     // Virtual destructor for proper cleanup in derived classes
     virtual ~EventHandlerInterface()
-    {
-    }
+    = default;
 
     // Handler for face change events
     virtual void onFaceChange(const char* previousFace, const char* currentFace) = 0;
