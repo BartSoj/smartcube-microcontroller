@@ -39,9 +39,6 @@ const char* FaceManager::getCurrentFace()
     float gravity[3];
     mpuManager.getGravityVector(gravity);
 
-    // Calculate the local up vector (opposite of gravity)
-    float localUp[3] = {-gravity[0], -gravity[1], -gravity[2]};
-
     // Find the face with direction most closely aligned with local up
     float bestMatch = -1.0f; // Start with minimum possible dot product
     int bestFaceIndex = 0;
@@ -49,7 +46,7 @@ const char* FaceManager::getCurrentFace()
     for (int i = 0; i < 6; i++)
     {
         // Calculate alignment score (dot product)
-        float score = dotProduct(localUp[0], localUp[1], localUp[2],
+        float score = dotProduct(gravity[0], gravity[1], gravity[2],
                                  faceMappings[i].x, faceMappings[i].y, faceMappings[i].z);
 
         // If this face is better aligned than our previous best match

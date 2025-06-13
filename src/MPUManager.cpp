@@ -2,6 +2,7 @@
 #include "Wire.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "I2Cdev.h"
+#include "config/MPU6050Config.h"
 
 // Forward declarations of private implementation variables
 namespace
@@ -54,20 +55,16 @@ bool MPUManager::init()
     // Make sure it worked (returns 0 if so)
     if (devStatus == 0)
     {
-        // Supply your own gyro offsets here, scaled for min sensitivity
-        // These should be calibrated for your specific device
-        mpuDevice->setXGyroOffset(220);
-        mpuDevice->setYGyroOffset(76);
-        mpuDevice->setZGyroOffset(-85);
-        mpuDevice->setZAccelOffset(1788);
-
-        // Generate offsets and calibrate MPU6050
-        mpuDevice->CalibrateAccel(6);
-        mpuDevice->CalibrateGyro(6);
-        mpuDevice->PrintActiveOffsets();
+        // Load the calibrated offsets from config file
+        mpuDevice->setXAccelOffset(MPU6050Config::X_ACCEL_OFFSET);
+        mpuDevice->setYAccelOffset(MPU6050Config::Y_ACCEL_OFFSET);
+        mpuDevice->setZAccelOffset(MPU6050Config::Z_ACCEL_OFFSET);
+        mpuDevice->setXGyroOffset(MPU6050Config::X_GYRO_OFFSET);
+        mpuDevice->setYGyroOffset(MPU6050Config::Y_GYRO_OFFSET);
+        mpuDevice->setZGyroOffset(MPU6050Config::Z_GYRO_OFFSET);
 
         // Configure DMP rate - set to a slower rate to prevent FIFO overflow
-        mpuDevice->setRate(16); // 0 = 8kHz, 1 = 4kHz, 2 = 2kHz, 4 = 1kHz, etc.
+        mpuDevice->setRate(MPU6050Config::DMP_RATE); // 0 = 8kHz, 1 = 4kHz, 2 = 2kHz, 4 = 1kHz, etc.
 
         // Configure FIFO
         mpuDevice->setDMPEnabled(false); // Temporarily disable while configuring
