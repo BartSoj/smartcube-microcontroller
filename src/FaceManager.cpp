@@ -1,5 +1,6 @@
 #include "FaceManager.h"
 #include "MPUManager.h"
+#include "config/FaceDirectionConfig.h"
 
 // Global instance of FaceManager
 FaceManager faceManager;
@@ -9,12 +10,12 @@ FaceManager::FaceManager()
 {
     // Standard orientation mapping
     // Each entry defines which direction in sensor space corresponds to each face
-    faceMappings[0] = {"Top", 0.0f, 1.0f, 0.0f}; // Top face = +Y axis
-    faceMappings[1] = {"Bottom", 0.0f, -1.0f, 0.0f}; // Bottom face = -Y axis
-    faceMappings[2] = {"Right", 1.0f, 0.0f, 0.0f}; // Right face = +X axis
-    faceMappings[3] = {"Left", -1.0f, 0.0f, 0.0f}; // Left face = -X axis
-    faceMappings[4] = {"Front", 0.0f, 0.0f, 1.0f}; // Front face = +Z axis
-    faceMappings[5] = {"Back", 0.0f, 0.0f, -1.0f}; // Back face = -Z axis
+    faceMappings[0] = {"Top", FACE_DIR_TOP_X, FACE_DIR_TOP_Y, FACE_DIR_TOP_Z}; // Top face
+    faceMappings[1] = {"Bottom", FACE_DIR_BOTTOM_X, FACE_DIR_BOTTOM_Y, FACE_DIR_BOTTOM_Z}; // Bottom face
+    faceMappings[2] = {"Right", FACE_DIR_RIGHT_X, FACE_DIR_RIGHT_Y, FACE_DIR_RIGHT_Z}; // Right face
+    faceMappings[3] = {"Left", FACE_DIR_LEFT_X, FACE_DIR_LEFT_Y, FACE_DIR_LEFT_Z}; // Left face
+    faceMappings[4] = {"Front", FACE_DIR_FRONT_X, FACE_DIR_FRONT_Y, FACE_DIR_FRONT_Z}; // Front face
+    faceMappings[5] = {"Back", FACE_DIR_BACK_X, FACE_DIR_BACK_Y, FACE_DIR_BACK_Z}; // Back face
 }
 
 // Configure custom face mappings

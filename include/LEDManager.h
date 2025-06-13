@@ -2,6 +2,7 @@
 #define LED_MANAGER_H
 
 #include <FastLED.h>
+#include "config/PanelConfig.h"
 
 // LED Panel Configuration
 #define LED_TYPE WS2812B
@@ -17,12 +18,12 @@
 // Panel identifiers
 enum PanelSide
 {
-    TOP = 0,
-    BOTTOM,
-    LEFT,
-    RIGHT,
-    FRONT,
-    BACK
+    TOP = PANEL_IDX_TOP,
+    BOTTOM = PANEL_IDX_BOTTOM,
+    LEFT = PANEL_IDX_LEFT,
+    RIGHT = PANEL_IDX_RIGHT,
+    FRONT = PANEL_IDX_FRONT,
+    BACK = PANEL_IDX_BACK
 };
 
 // Icon identifiers
