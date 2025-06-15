@@ -1,17 +1,17 @@
 #include <Arduino.h>
-#include "MPUManager.h"
-#include "LEDManager.h"
-#include "FaceManager.h"
-#include "EventManager.h"
-#include "HttpRequestEventHandler.h"
-#include "LEDEventHandler.h"
+#include "MotionSensor.h"
+#include "LedController.h"
+#include "CubeOrientation.h"
+#include "OrientationNotifier.h"
+#include "WebObserver.h"
+#include "LedObserver.h"
 
 void setup()
 {
     Serial.begin(115200);
 
     // Initialize MPU6050
-    if (!mpuManager.init())
+    if (!motionSensor.init())
     {
         Serial.println("Failed to initialize MPU6050. Check connections.");
     }
@@ -22,7 +22,7 @@ void setup()
     delay(2000);
 
     // Initialize LED panel
-    if (!ledManager.init())
+    if (!ledController.init())
     {
         Serial.println("Failed to initialize LED panel.");
     }
@@ -32,26 +32,26 @@ void setup()
     }
 
     // Initialize Face Manager
-    if (initFaceManager())
+    if (initCubeOrientation())
     {
         Serial.println("Face Manager initialized successfully.");
-        faceManager.printFaceMappings();
+        cubeOrientation.printFaceMappings();
     }
 
     // Initialize Event Manager
-    if (initEventManager())
+    if (initOrientationNotifier())
     {
         Serial.println("Event Manager initialized successfully.");
     }
 
     // Initialize LED Event Handler
-    if (initLEDEventHandler())
+    if (initLedObserver())
     {
         Serial.println("LED Event Handler initialized successfully.");
     }
 
     // Initialize HTTP Request Event Handler
-    if (initHttpRequestEventHandler())
+    if (initWebObserver())
     {
         Serial.println("HTTP Request Event Handler initialized successfully.");
     }
@@ -60,5 +60,5 @@ void setup()
 void loop()
 {
     // Update event manager to detect face changes
-    eventManager.update();
+    orientationNotifier.checkAndNotify();
 }

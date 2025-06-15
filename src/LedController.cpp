@@ -1,4 +1,4 @@
-#include "LEDManager.h"
+#include "LedController.h"
 
 // --- Special Placeholder for Background Pixels ---
 const CRGB BG_PLACEHOLDER = CRGB(1, 2, 3);
@@ -158,11 +158,11 @@ const CRGB emptyIcon[PANEL_SIZE][PANEL_SIZE] = {
 };
 
 // Global LEDManager instance
-LEDManager ledManager;
+LedController ledController;
 
 // --- LEDManager Implementation ---
 
-LEDManager::LEDManager() :
+LedController::LedController() :
     leds{},
     currentBackgroundColor(CRGB::Blue),
     currentBrightness(10),
@@ -175,7 +175,7 @@ LEDManager::LEDManager() :
     }
 }
 
-bool LEDManager::init()
+bool LedController::init()
 {
     Serial.println("Initializing LED Manager for 6-panel cube");
     Serial.print("Total LEDs: ");
@@ -195,7 +195,7 @@ bool LEDManager::init()
 }
 
 // Maps x,y coordinates to LED index within a specific panel
-uint16_t LEDManager::XY(uint8_t x, uint8_t y, PanelSide panel)
+uint16_t LedController::XY(uint8_t x, uint8_t y, PanelSide panel)
 {
     // Basic validation
     if (x >= PANEL_SIZE || y >= PANEL_SIZE || panel >= NUM_PANELS)
@@ -221,7 +221,7 @@ uint16_t LEDManager::XY(uint8_t x, uint8_t y, PanelSide panel)
 }
 
 // Apply an icon to a specific panel
-void LEDManager::applyIconToPanel(IconType icon, PanelSide panel)
+void LedController::applyIconToPanel(IconType icon, PanelSide panel)
 {
     if (!ledsEnabled) return;
 
@@ -272,7 +272,7 @@ void LEDManager::applyIconToPanel(IconType icon, PanelSide panel)
     currentIcons[panel] = icon;
 }
 
-void LEDManager::updateLEDs() const
+void LedController::updateLEDs() const
 {
     if (ledsEnabled)
     {
@@ -280,7 +280,7 @@ void LEDManager::updateLEDs() const
     }
 }
 
-void LEDManager::setIcon(IconType icon, PanelSide panel)
+void LedController::setIcon(IconType icon, PanelSide panel)
 {
     if (panel >= NUM_PANELS) return;
 
@@ -288,7 +288,7 @@ void LEDManager::setIcon(IconType icon, PanelSide panel)
     updateLEDs();
 }
 
-void LEDManager::setAllIcons(IconType icon)
+void LedController::setAllIcons(IconType icon)
 {
     for (int panel = 0; panel < NUM_PANELS; panel++)
     {
@@ -297,7 +297,7 @@ void LEDManager::setAllIcons(IconType icon)
     updateLEDs();
 }
 
-void LEDManager::setBackgroundColor(CRGB color)
+void LedController::setBackgroundColor(CRGB color)
 {
     currentBackgroundColor = color;
 
@@ -309,14 +309,14 @@ void LEDManager::setBackgroundColor(CRGB color)
     updateLEDs();
 }
 
-void LEDManager::setBrightness(uint8_t brightness)
+void LedController::setBrightness(uint8_t brightness)
 {
     currentBrightness = brightness;
     FastLED.setBrightness(brightness);
     updateLEDs();
 }
 
-void LEDManager::enableLEDs(bool enable)
+void LedController::enableLEDs(bool enable)
 {
     ledsEnabled = enable;
 
@@ -337,22 +337,22 @@ void LEDManager::enableLEDs(bool enable)
     }
 }
 
-CRGB LEDManager::getBackgroundColor() const
+CRGB LedController::getBackgroundColor() const
 {
     return currentBackgroundColor;
 }
 
-uint8_t LEDManager::getBrightness() const
+uint8_t LedController::getBrightness() const
 {
     return currentBrightness;
 }
 
-bool LEDManager::isEnabled() const
+bool LedController::isEnabled() const
 {
     return ledsEnabled;
 }
 
-IconType LEDManager::getCurrentIcon(PanelSide panel) const
+IconType LedController::getCurrentIcon(PanelSide panel) const
 {
     if (panel >= NUM_PANELS)
     {

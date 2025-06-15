@@ -10,7 +10,7 @@
  * from the MPU6050 with DMP support. It handles all internal state
  * management to prevent overflow issues.
  */
-class MPUManager
+class MotionSensor
 {
 public:
     /**
@@ -19,7 +19,7 @@ public:
      * @param sdaPin SDA pin for I2C connection
      * @param sclPin SCL pin for I2C connection
      */
-    explicit MPUManager(int sdaPin = 19, int sclPin = 18);
+    explicit MotionSensor(int sdaPin = 19, int sclPin = 18);
 
     /**
      * Initialize the MPU6050 sensor with Digital Motion Processor (DMP)
@@ -45,6 +45,6 @@ private:
     bool updateSensorData() const;
 };
 
-extern MPUManager mpuManager;
+extern MotionSensor motionSensor;
 
 #endif // MPU_MANAGER_H

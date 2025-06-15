@@ -12,7 +12,7 @@ typedef struct
     float z; // Z component of the face direction vector
 } FaceDirection;
 
-class FaceManager
+class CubeOrientation
 {
 private:
     // Array of face directions mapping sensor axes to face names
@@ -23,7 +23,7 @@ private:
 
 public:
     // Constructor with default face mappings
-    FaceManager();
+    CubeOrientation();
 
     // Initialize with custom face mappings
     void configureFaceMappings(const FaceDirection* mappings);
@@ -36,9 +36,9 @@ public:
 };
 
 // Create a global instance of FaceManager
-extern FaceManager faceManager;
+extern CubeOrientation cubeOrientation;
 
 // Initialize the FaceManager with default settings
-bool initFaceManager();
+bool initCubeOrientation();
 
 #endif // FACE_MANAGER_H

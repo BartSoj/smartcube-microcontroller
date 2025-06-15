@@ -1,8 +1,8 @@
 #ifndef HTTP_REQUEST_EVENT_HANDLER_H
 #define HTTP_REQUEST_EVENT_HANDLER_H
 
-#include "EventManager.h"
-#include "HttpRequestManager.h"
+#include "OrientationNotifier.h"
+#include "WebClient.h"
 
 // Structure to map face names to URLs
 typedef struct
@@ -12,7 +12,7 @@ typedef struct
 } FaceUrlMapping;
 
 // Event handler that sends HTTP requests based on cube face
-class HttpRequestEventHandler : public EventHandlerInterface
+class WebObserver : public IFaceChangeObserver
 {
 private:
     // Array of face-to-URL mappings
@@ -26,7 +26,7 @@ private:
 
 public:
     // Constructor with default URL mappings
-    HttpRequestEventHandler();
+    WebObserver();
 
     // Configure custom URL mappings
     void configureUrlMappings(const FaceUrlMapping* mappings);
@@ -49,6 +49,6 @@ public:
 };
 
 // Function to initialize and register the HTTP request handler
-bool initHttpRequestEventHandler();
+bool initWebObserver();
 
 #endif // HTTP_REQUEST_EVENT_HANDLER_H

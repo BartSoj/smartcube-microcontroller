@@ -1,7 +1,7 @@
-#include "HttpRequestEventHandler.h"
+#include "WebObserver.h"
 #include "config/HttpRequestConfig.h"
 
-HttpRequestEventHandler::HttpRequestEventHandler()
+WebObserver::WebObserver()
 {
     // URL mappings from configuration file
     urlMappings[0] = {"Top", HTTP_URL_TOP};
@@ -13,7 +13,7 @@ HttpRequestEventHandler::HttpRequestEventHandler()
 }
 
 // Configure custom URL mappings
-void HttpRequestEventHandler::configureUrlMappings(const FaceUrlMapping* mappings)
+void WebObserver::configureUrlMappings(const FaceUrlMapping* mappings)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -22,7 +22,7 @@ void HttpRequestEventHandler::configureUrlMappings(const FaceUrlMapping* mapping
 }
 
 // Set URL for a specific face
-void HttpRequestEventHandler::setFaceUrl(const char* faceName, const String& url)
+void WebObserver::setFaceUrl(const char* faceName, const String& url)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -35,7 +35,7 @@ void HttpRequestEventHandler::setFaceUrl(const char* faceName, const String& url
 }
 
 // Configure all face URLs at once
-void HttpRequestEventHandler::configureFaceUrls(
+void WebObserver::configureFaceUrls(
     const String& topUrl,
     const String& bottomUrl,
     const String& rightUrl,
@@ -53,7 +53,7 @@ void HttpRequestEventHandler::configureFaceUrls(
 }
 
 // Helper method to get URL for a given face name
-String HttpRequestEventHandler::getFaceUrl(const char* faceName)
+String WebObserver::getFaceUrl(const char* faceName)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -67,7 +67,7 @@ String HttpRequestEventHandler::getFaceUrl(const char* faceName)
 }
 
 // Send HTTP request for a specific face
-void HttpRequestEventHandler::sendRequestForFace(const char* faceName)
+void WebObserver::sendRequestForFace(const char* faceName)
 {
     // Get the URL for this face directly from config
     String url = getFaceUrl(faceName);
@@ -85,7 +85,7 @@ void HttpRequestEventHandler::sendRequestForFace(const char* faceName)
     Serial.println(url);
 
     // Send the GET request
-    DynamicJsonDocument response = HttpRequestManager::sendRequest(url, "GET");
+    DynamicJsonDocument response = WebClient::sendRequest(url, "GET");
 
     // Process the response
     if (response.containsKey("error"))
@@ -115,20 +115,20 @@ void HttpRequestEventHandler::sendRequestForFace(const char* faceName)
 }
 
 // Handle face change events
-void HttpRequestEventHandler::onFaceChange(const char* previousFace, const char* currentFace)
+void WebObserver::onFaceChange(const char* previousFace, const char* currentFace)
 {
     // Send HTTP request for the new face
     sendRequestForFace(currentFace);
 }
 
 // Initialize and register the handler
-bool initHttpRequestEventHandler()
+bool initWebObserver()
 {
     // Create a static instance of the HTTP request handler
-    static HttpRequestEventHandler httpHandler;
+    static WebObserver webObserver;
 
     // Register the HTTP handler with the event system
-    eventManager.registerEventHandler(&httpHandler);
+    orientationNotifier.registerObserver(&webObserver);
 
     Serial.println("HTTP Request Event Handler initialized");
     return true;

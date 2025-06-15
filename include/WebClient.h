@@ -6,7 +6,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-class HttpRequestManager
+class WebClient
 {
 public:
     // Initialize the WiFi connection

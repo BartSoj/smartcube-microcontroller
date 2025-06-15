@@ -1,8 +1,8 @@
-#include "LEDEventHandler.h"
+#include "LedObserver.h"
 #include "config/LEDColorConfig.h"
 
 // Constructor with color mappings from configuration
-LEDEventHandler::LEDEventHandler()
+LedObserver::LedObserver()
 {
     // Color mappings from configuration file
     colorMappings[0] = {"Top", LED_COLOR_TOP};
@@ -14,7 +14,7 @@ LEDEventHandler::LEDEventHandler()
 }
 
 // Configure custom color mappings
-void LEDEventHandler::configureColorMappings(const FaceColorMapping* mappings)
+void LedObserver::configureColorMappings(const FaceColorMapping* mappings)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -23,7 +23,7 @@ void LEDEventHandler::configureColorMappings(const FaceColorMapping* mappings)
 }
 
 // Set color for a specific face
-void LEDEventHandler::setFaceColor(const char* faceName, CRGB color)
+void LedObserver::setFaceColor(const char* faceName, CRGB color)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -36,7 +36,7 @@ void LEDEventHandler::setFaceColor(const char* faceName, CRGB color)
 }
 
 // Configure all face colors at once
-void LEDEventHandler::configureFaceColors(
+void LedObserver::configureFaceColors(
     CRGB topColor,
     CRGB bottomColor,
     CRGB rightColor,
@@ -54,7 +54,7 @@ void LEDEventHandler::configureFaceColors(
 }
 
 // Find the color for a specific face
-CRGB LEDEventHandler::getColorForFace(const char* faceName)
+CRGB LedObserver::getColorForFace(const char* faceName)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -68,7 +68,7 @@ CRGB LEDEventHandler::getColorForFace(const char* faceName)
 }
 
 // Handle face change events
-void LEDEventHandler::onFaceChange(const char* previousFace, const char* currentFace)
+void LedObserver::onFaceChange(const char* previousFace, const char* currentFace)
 {
     // Get the color for the current face
     CRGB faceColor = getColorForFace(currentFace);
@@ -85,17 +85,17 @@ void LEDEventHandler::onFaceChange(const char* previousFace, const char* current
     Serial.println(")");
 
     // Update the LED manager with the new color
-    ledManager.setBackgroundColor(faceColor);
+    ledController.setBackgroundColor(faceColor);
 }
 
 // Initialize with default configuration and register the handler
-bool initLEDEventHandler()
+bool initLedObserver()
 {
     // Create a static instance of the LED event handler
-    static LEDEventHandler ledHandler;
+    static LedObserver ledObserver;
 
     // Register the LED handler with the event system
-    eventManager.registerEventHandler(&ledHandler);
+    orientationNotifier.registerObserver(&ledObserver);
 
     Serial.println("LED Event Handler initialized");
     return true;

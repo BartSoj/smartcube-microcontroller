@@ -5,50 +5,50 @@
 #include <vector>
 
 // Interface for event handlers
-class EventHandlerInterface
+class IFaceChangeObserver
 {
 public:
     // Virtual destructor for proper cleanup in derived classes
-    virtual ~EventHandlerInterface()
+    virtual ~IFaceChangeObserver()
     = default;
 
     // Handler for face change events
     virtual void onFaceChange(const char* previousFace, const char* currentFace) = 0;
 };
 
-class EventManager
+class OrientationNotifier
 {
 private:
     const char* lastFace; // Keep track of the last detected face
-    std::vector<EventHandlerInterface*> eventHandlers; // Collection of event handlers
+    std::vector<IFaceChangeObserver*> observers; // Collection of event handlers
 
 public:
     // Constructor
-    EventManager();
+    OrientationNotifier();
 
     // Register an event handler
-    void registerEventHandler(EventHandlerInterface* handler);
+    void registerObserver(IFaceChangeObserver* handler);
 
     // Unregister an event handler
-    bool unregisterEventHandler(EventHandlerInterface* handler);
+    bool unregisterObserver(IFaceChangeObserver* handler);
 
     // Check if face has changed and trigger event if it did
-    void update();
+    void checkAndNotify();
 
     // Get the last detected face
     const char* getLastFace() const;
 
     // Notify all event handlers about face change
-    void notifyFaceChange(const char* previousFace, const char* currentFace);
+    void notifyObservers(const char* previousFace, const char* currentFace);
 
     // Clear all registered handlers
-    void clearHandlers();
+    void removeAllObservers();
 };
 
 // Global instance of EventManager
-extern EventManager eventManager;
+extern OrientationNotifier orientationNotifier;
 
 // Initialize the EventManager and event handlers
-bool initEventManager();
+bool initOrientationNotifier();
 
 #endif // EVENT_MANAGER_H

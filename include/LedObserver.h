@@ -1,8 +1,8 @@
 #ifndef LED_EVENT_HANDLER_H
 #define LED_EVENT_HANDLER_H
 
-#include "EventManager.h"
-#include "LEDManager.h"
+#include "OrientationNotifier.h"
+#include "LedController.h"
 
 // Structure to map face names to colors
 typedef struct
@@ -12,7 +12,7 @@ typedef struct
 } FaceColorMapping;
 
 // Event handler that changes LED background color based on cube face
-class LEDEventHandler : public EventHandlerInterface
+class LedObserver : public IFaceChangeObserver
 {
 private:
     // Array of face-to-color mappings
@@ -23,7 +23,7 @@ private:
 
 public:
     // Constructor with default color mappings
-    LEDEventHandler();
+    LedObserver();
 
     // Configure custom color mappings
     void configureColorMappings(const FaceColorMapping* mappings);
@@ -46,6 +46,6 @@ public:
 };
 
 // Function to initialize and register the LED event handler
-bool initLEDEventHandler();
+bool initLedObserver();
 
 #endif // LED_EVENT_HANDLER_H

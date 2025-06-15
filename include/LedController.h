@@ -40,7 +40,7 @@ enum IconType
 // Special value for background pixels in icon definitions
 extern const CRGB BG_PLACEHOLDER;
 
-class LEDManager
+class LedController
 {
 private:
     CRGB leds[NUM_LEDS];
@@ -59,7 +59,7 @@ private:
     void updateLEDs() const;
 
 public:
-    LEDManager();
+    LedController();
 
     // Initialization
     bool init();
@@ -78,6 +78,6 @@ public:
     IconType getCurrentIcon(PanelSide panel) const;
 };
 
-extern LEDManager ledManager;
+extern LedController ledController;
 
 #endif // LED_MANAGER_H

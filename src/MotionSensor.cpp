@@ -1,4 +1,4 @@
-#include "MPUManager.h"
+#include "MotionSensor.h"
 #include "Wire.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "I2Cdev.h"
@@ -15,14 +15,14 @@ namespace
 }
 
 // Global MPUManager instance
-MPUManager mpuManager;
+MotionSensor motionSensor;
 
-MPUManager::MPUManager(int sdaPin, int sclPin) : _sdaPin(sdaPin), _sclPin(sclPin), _dmpReady(false)
+MotionSensor::MotionSensor(int sdaPin, int sclPin) : _sdaPin(sdaPin), _sclPin(sclPin), _dmpReady(false)
 {
     // Constructor initializes member variables only
 }
 
-bool MPUManager::init()
+bool MotionSensor::init()
 {
     // Initialize I2C communication
     Wire.begin(_sdaPin, _sclPin);
@@ -105,7 +105,7 @@ bool MPUManager::init()
     }
 }
 
-bool MPUManager::updateSensorData() const
+bool MotionSensor::updateSensorData() const
 {
     // If DMP not ready, exit
     if (!_dmpReady || mpuDevice == nullptr)
@@ -145,7 +145,7 @@ bool MPUManager::updateSensorData() const
     return true;
 }
 
-bool MPUManager::getGravityVector(float* vec)
+bool MotionSensor::getGravityVector(float* vec)
 {
     // Update sensor data first
     bool success = updateSensorData();

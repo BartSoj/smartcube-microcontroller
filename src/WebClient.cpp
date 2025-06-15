@@ -1,9 +1,9 @@
-#include "HttpRequestManager.h"
+#include "WebClient.h"
 #include "../include/config/secrets.h"
 
-bool HttpRequestManager::_initialized = false;
+bool WebClient::_initialized = false;
 
-bool HttpRequestManager::init()
+bool WebClient::init()
 {
     if (_initialized)
     {
@@ -34,12 +34,12 @@ bool HttpRequestManager::init()
     return true;
 }
 
-bool HttpRequestManager::isConnected()
+bool WebClient::isConnected()
 {
     return WiFiClass::status() == WL_CONNECTED;
 }
 
-bool HttpRequestManager::reconnect()
+bool WebClient::reconnect()
 {
     if (isConnected())
     {
@@ -52,7 +52,7 @@ bool HttpRequestManager::reconnect()
     return init();
 }
 
-DynamicJsonDocument HttpRequestManager::sendRequest(const String& url, const String& method, const JsonDocument* body)
+DynamicJsonDocument WebClient::sendRequest(const String& url, const String& method, const JsonDocument* body)
 {
     DynamicJsonDocument responseDoc(2048); // Adjust size based on expected response size
 
@@ -127,7 +127,7 @@ DynamicJsonDocument HttpRequestManager::sendRequest(const String& url, const Str
     return responseDoc;
 }
 
-void HttpRequestManager::printWifiStatus()
+void WebClient::printWifiStatus()
 {
     Serial.print("SSID: ");
     Serial.println(WiFi.SSID());

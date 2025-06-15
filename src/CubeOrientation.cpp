@@ -1,12 +1,12 @@
-#include "FaceManager.h"
-#include "MPUManager.h"
+#include "CubeOrientation.h"
+#include "MotionSensor.h"
 #include "config/FaceDirectionConfig.h"
 
 // Global instance of FaceManager
-FaceManager faceManager;
+CubeOrientation cubeOrientation;
 
 // Default constructor - initialize with standard cube orientation
-FaceManager::FaceManager()
+CubeOrientation::CubeOrientation()
 {
     // Standard orientation mapping
     // Each entry defines which direction in sensor space corresponds to each face
@@ -19,7 +19,7 @@ FaceManager::FaceManager()
 }
 
 // Configure custom face mappings
-void FaceManager::configureFaceMappings(const FaceDirection* mappings)
+void CubeOrientation::configureFaceMappings(const FaceDirection* mappings)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -28,16 +28,16 @@ void FaceManager::configureFaceMappings(const FaceDirection* mappings)
 }
 
 // Helper function to calculate dot product
-float FaceManager::dotProduct(float x1, float y1, float z1, float x2, float y2, float z2)
+float CubeOrientation::dotProduct(float x1, float y1, float z1, float x2, float y2, float z2)
 {
     return x1 * x2 + y1 * y2 + z1 * z2;
 }
 
 // Get the current face pointing up
-const char* FaceManager::getCurrentFace()
+const char* CubeOrientation::getCurrentFace()
 {
     float gravity[3];
-    mpuManager.getGravityVector(gravity);
+    motionSensor.getGravityVector(gravity);
 
     // Find the face with direction most closely aligned with local up
     float bestMatch = -1.0f; // Start with minimum possible dot product
@@ -62,7 +62,7 @@ const char* FaceManager::getCurrentFace()
 }
 
 // Debug function to print current face mappings
-void FaceManager::printFaceMappings()
+void CubeOrientation::printFaceMappings()
 {
     Serial.println("Current Face Mappings:");
     for (auto& faceMapping : faceMappings)
@@ -79,7 +79,7 @@ void FaceManager::printFaceMappings()
 }
 
 // Initialize the FaceManager
-bool initFaceManager()
+bool initCubeOrientation()
 {
     // Currently just uses default configuration
     // You could load custom mappings from storage here if needed
